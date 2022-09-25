@@ -3,6 +3,12 @@
 @{
 }
 
+@if(@Model.sucessoCadastro){
+    <div class="alert alert-success">
+        Usuário cadastrado com sucesso
+    </div>
+}
+
 <div class="container border" style="padding: 20px">
     <form method="post">
          <div class="form-group row">

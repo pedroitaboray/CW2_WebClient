@@ -10,10 +10,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["CW2_WebClient/CW2_WebClient.csproj", "CW2_WebClient/"]
-RUN dotnet restore "CW2_WebClient/CW2_WebClient.csproj"
+COPY ["CW2_WebClient.csproj", ""]
+RUN dotnet restore "CW2_WebClient.csproj"
 COPY . .
-WORKDIR "/src/CW2_WebClient"
+WORKDIR "/src"
 RUN dotnet build "CW2_WebClient.csproj" -c Release -o /app/build
 
 FROM build AS publish
@@ -22,4 +22,4 @@ RUN dotnet publish "CW2_WebClient.csproj" -c Release -o /app/publish /p:UseAppHo
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CW2_WebClient.dll"]
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet CW2_WebClient.dll

@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
+using System.Security.Cryptography;
 
 namespace CW2_WebClient.Pages
 {
@@ -51,6 +52,8 @@ namespace CW2_WebClient.Pages
                 string baseURL =
                     config.GetSection("API_Login:BaseURL").Value;
 
+                Login.senha = GerarMD5(Login.senha);
+
                 var myContent = JsonConvert.SerializeObject(Login);
                 var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
                 var byteContent = new ByteArrayContent(buffer);
@@ -74,6 +77,20 @@ namespace CW2_WebClient.Pages
             }
 
             return Redirect("/HomePage");
+        }
+
+        public string GerarMD5(string valor)
+        {
+            MD5 md5Hasher = MD5.Create();
+            byte[] valorCriptografado = md5Hasher.ComputeHash(Encoding.Default.GetBytes(valor));
+            StringBuilder strBuilder = new StringBuilder();
+
+            for (int i = 0; i < valorCriptografado.Length; i++)
+            {
+                strBuilder.Append(valorCriptografado[i].ToString("x2"));
+            }
+
+            return strBuilder.ToString();
         }
     }
 }

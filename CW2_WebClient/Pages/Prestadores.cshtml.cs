@@ -3,23 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace CW2_WebClient.Pages
 {
-    public class UsuariosModel : PageModel
+    public class PrestadoresModel : PageModel
     {
         [BindProperty]
-        public Usuario? usuario { get; set; }
-
-        public List<Usuario>? usuarios_cadastrados { get; set; }
+        public Prestador? prestador { get; set; }
 
         [TempData]
         public bool sucessoCadastro { get; set; } = false;
 
+        public List<Prestador>? prestadores_cadastrados { get; set; }
         public string Username { get; set; }
-        public  async Task<IActionResult> OnGet([FromServices] IConfiguration config)
+        public async Task<IActionResult> OnGet([FromServices] IConfiguration config)
         {
             Username = HttpContext.Session.GetString("usuario");
 
@@ -28,7 +25,7 @@ namespace CW2_WebClient.Pages
                 return Redirect("/login");
             }
 
-            await this.AtualizarUsuariosCadastrados(config);
+            await this.AtualizarPrestadoresCadastrados(config);
             sucessoCadastro = false;
             return Page();
         }
@@ -47,11 +44,9 @@ namespace CW2_WebClient.Pages
                     new MediaTypeWithQualityHeaderValue("application/json"));
 
                 string baseURL =
-                    config.GetSection("API_Usuario:BaseURL").Value;
+                    config.GetSection("API_Prestador:BaseURL").Value;
 
-                usuario.Senha = GerarMD5(usuario.Senha);
-
-                var myContent = JsonConvert.SerializeObject(usuario);
+                var myContent = JsonConvert.SerializeObject(prestador);
                 var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
                 var byteContent = new ByteArrayContent(buffer);
 
@@ -62,15 +57,23 @@ namespace CW2_WebClient.Pages
                 response.EnsureSuccessStatusCode();
                 sucessoCadastro = true;
 
+                this.LimparTela();
+
                 string conteudo =
                     response.Content.ReadAsStringAsync().Result;
-                await this.AtualizarUsuariosCadastrados(config);
+                await this.AtualizarPrestadoresCadastrados(config);
             }
 
             return Page();
         }
 
-        private async Task<bool> AtualizarUsuariosCadastrados(IConfiguration config)
+        private void LimparTela()
+        {
+            prestador.cgccpf = String.Empty;
+            prestador.Nome = String.Empty;
+        }
+
+        private async Task<bool> AtualizarPrestadoresCadastrados(IConfiguration config)
         {
             using (var client = new HttpClient())
             {
@@ -79,29 +82,15 @@ namespace CW2_WebClient.Pages
                     new MediaTypeWithQualityHeaderValue("application/json"));
 
                 string baseURL =
-                    config.GetSection("API_Usuario:BaseURL").Value;
+                    config.GetSection("API_Prestador:BaseURL").Value;
 
                 var response = await client.GetAsync(baseURL);
                 string conteudo = response.Content.ReadAsStringAsync().Result;
-                var myContent = JsonConvert.DeserializeObject<List<Usuario>>(conteudo);
-                usuarios_cadastrados = myContent;
+                var myContent = JsonConvert.DeserializeObject<List<Prestador>>(conteudo);
+                prestadores_cadastrados = myContent;
             }
 
             return true;
-        }
-
-        public string GerarMD5(string valor)
-        {
-            MD5 md5Hasher = MD5.Create();
-            byte[] valorCriptografado = md5Hasher.ComputeHash(Encoding.Default.GetBytes(valor));
-            StringBuilder strBuilder = new StringBuilder();
-
-            for (int i = 0; i < valorCriptografado.Length; i++)
-            {
-                strBuilder.Append(valorCriptografado[i].ToString("x2"));
-            }
-
-            return strBuilder.ToString();
         }
     }
 }

@@ -1,0 +1,59 @@
+﻿@page
+@model CW2_WebClient.Pages.PrestadoresModel
+@{
+}
+@if (@Model.sucessoCadastro)
+{
+    <div class="alert alert-success">
+        Prestador cadastrado com sucesso
+    </div>
+}
+
+<div class="container border" style="padding: 20px">
+    <form method="post">
+        <div class="form-group row">
+            <div class="col-2">
+                <label asp-for="prestador.Nome"></label>
+            </div>
+            <div class="col-5">
+                <input type="text" asp-for="prestador.Nome" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-2">
+                <label asp-for="prestador.cgccpf"></label>
+            </div>
+            <div class="col-5">
+                <input type="text" asp-for="prestador.cgccpf" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-2">
+                <input type="submit" class="btn btn-primary" value="Cadastrar" />
+            </div>
+        </div>
+    </form>
+</div>
+<h3>Prestadores Cadastrados</h3>
+<div class="container border">
+    <div class="form-group row">
+        <div class="col-5">
+            CGC ou CPF
+        </div>
+        <div class="col-5">
+            Nome
+        </div>
+    </div>
+
+    @foreach (var prestador in Model.prestadores_cadastrados)
+    {
+        <div class="form-group row">
+            <div class="col-5">
+                @prestador.cgccpf
+            </div>
+            <div class="col-5">
+                @prestador.Nome
+            </div>
+        </div>
+    }
+</div>
